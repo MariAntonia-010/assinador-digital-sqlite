@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Assinar Texto</title>
+  <style>
+    :root {
+      --bg: #f5f4f0;
+      --surface: #ffffff;
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --primary-light: #ede9fe;
+      --text: #1e1b4b;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success-bg: #f0fdf4;
+      --success-border: #bbf7d0;
+      --success-text: #15803d;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(79,70,229,.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); min-height: 100vh; }
+
+    .topbar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .topbar-brand .icon { width: 32px; height: 32px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .topbar-brand span { font-weight: 700; color: var(--text); font-size: 15px; }
+    .topbar-nav { display: flex; align-items: center; gap: 4px; }
+    .nav-link {
+      padding: 6px 14px; border-radius: 7px; text-decoration: none;
+      font-size: 13px; font-weight: 500; color: var(--muted); transition: all .15s;
+    }
+    .nav-link:hover { background: var(--bg); color: var(--text); }
+    .nav-link.active { background: var(--primary-light); color: var(--primary); }
+    .nav-sep { color: var(--border); margin: 0 4px; }
+
+    .page { max-width: 760px; margin: 0 auto; padding: 32px 24px; }
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-size: 22px; color: var(--text); font-weight: 700; }
+    .page-header p  { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 15px; font-weight: 700; color: var(--text);
+      margin-bottom: 16px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    textarea {
+      width: 100%; padding: 12px 14px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 14px; font-family: inherit; resize: vertical;
+      min-height: 130px; outline: none; transition: border-color .2s; color: var(--text);
+    }
+    textarea:focus { border-color: var(--primary); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; background: var(--primary); color: white;
+      border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: background .2s; margin-top: 12px;
+    }
+    .btn:hover { background: var(--primary-dark); }
+    .btn-sm {
+      padding: 6px 14px; font-size: 12px; border-radius: 6px;
+      text-decoration: none; font-weight: 600;
+    }
+    .btn-outline {
+      background: white; color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+    .btn-outline:hover { background: var(--primary-light); }
+
+    .result-banner {
+      display: none; margin-top: 16px;
+      background: var(--success-bg); border: 1px solid var(--success-border);
+      border-radius: 10px; padding: 18px 20px;
+    }
+    .result-banner .label { font-size: 12px; font-weight: 600; color: var(--success-text); text-transform: uppercase; letter-spacing: .04em; }
+    .result-banner .sig-id { font-size: 34px; font-weight: 800; color: var(--primary); margin: 6px 0; }
+    .result-banner .hash { font-family: monospace; font-size: 11px; color: var(--muted); word-break: break-all; margin-bottom: 14px; }
+    .result-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .sig-list { display: flex; flex-direction: column; gap: 2px; }
+    .sig-item {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 16px; padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .sig-item:last-child { border-bottom: none; }
+    .sig-num { font-weight: 700; color: var(--primary); font-size: 13px; flex-shrink: 0; }
+    .sig-body { flex: 1; min-width: 0; }
+    .sig-text { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sig-meta { font-size: 11px; color: var(--muted); margin-top: 3px; font-family: monospace; }
+    .empty { text-align: center; padding: 24px 0; color: var(--muted); font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-brand" href="/sign.html">
+    <div class="icon">🔐</div>
+    <span>Assinador Digital</span>
+  </a>
+  <div class="topbar-nav">
+    <a class="nav-link active" href="/sign.html">✍️ Assinar</a>
+    <a class="nav-link" href="/verify.html">🔍 Verificar</a>
+    <a class="nav-link" href="/keys.html">🔑 Chaves</a>
+    <span class="nav-sep">|</span>
+    <a class="nav-link" href="#" onclick="sair()">Sair</a>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <h1>Assinar Texto</h1>
+    <p>Logado como <strong id="nomeUser"></strong></p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Novo documento</div>
+    <textarea id="texto" placeholder="Digite o texto a assinar..."></textarea>
+    <button class="btn" onclick="assinar()">🔏 Assinar documento</button>
+
+    <div class="result-banner" id="resultado">
+      <div class="label">✅ Assinatura criada</div>
+      <div class="sig-id" id="sigId"></div>
+      <div class="hash" id="sigHash"></div>
+      <div class="result-actions">
+        <a id="linkVerify" href="#" class="btn btn-sm">🔍 Verificar</a>
+        <a href="/keys.html" class="btn btn-sm btn-outline">🔑 Ver chaves</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Minhas assinaturas</div>
+    <div class="sig-list" id="lista-sigs">
+      <div class="empty">Carregando...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const token = localStorage.getItem('jwt');
+  if (!token) location.href = '/index.html';
+  document.getElementById('nomeUser').textContent = localStorage.getItem('user');
+  carregarAssinaturas();
+
+  async function assinar() {
+    const text = document.getElementById('texto').value.trim();
+    if (!text) return alert('Digite um texto.');
+    const res  = await fetch('/sign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ text })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById('sigId').textContent   = '#' + data.id;
+      document.getElementById('sigHash').textContent = 'SHA-256: ' + data.hash;
+      document.getElementById('linkVerify').href     = '/verify.html?id=' + data.id;
+      document.getElementById('resultado').style.display = 'block';
+      carregarAssinaturas();
+    } else alert('Erro: ' + data.erro);
+  }
+
+  async function carregarAssinaturas() {
+    const res  = await fetch('/api/my-signatures', { headers: { Authorization: 'Bearer ' + token } });
+    const list = document.getElementById('lista-sigs');
+    if (!res.ok) { list.innerHTML = '<div class="empty">Erro ao carregar.</div>'; return; }
+    const sigs = await res.json();
+    if (!sigs.length) { list.innerHTML = '<div class="empty">Nenhuma assinatura ainda.</div>'; return; }
+    list.innerHTML = sigs.map(s => `
+      <div class="sig-item">
+        <span class="sig-num">#${s.id}</span>
+        <div class="sig-body">
+          <div class="sig-text" title="${esc(s.textContent)}">${esc(s.textContent)}</div>
+          <div class="sig-meta">SHA-256: ${s.textHash} · ${new Date(s.createdAt).toLocaleString('pt-BR')}</div>
+        </div>
+        <a href="/verify.html?id=${s.id}" class="btn btn-sm" style="flex-shrink:0">🔍</a>
+      </div>
+    `).join('');
+  }
+
+  function sair() { localStorage.clear(); location.href = '/index.html'; }
+  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

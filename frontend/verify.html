@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Verificar Assinatura</title>
+  <style>
+    :root {
+      --bg: #f5f4f0;
+      --surface: #ffffff;
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --primary-light: #ede9fe;
+      --text: #1e1b4b;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success-bg: #f0fdf4;
+      --success-border: #bbf7d0;
+      --success-text: #15803d;
+      --error-bg: #fef2f2;
+      --error-border: #fecaca;
+      --error-text: #dc2626;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(79,70,229,.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); min-height: 100vh; }
+
+    .topbar {
+      background: white; border-bottom: 1px solid var(--border);
+      padding: 0 32px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .topbar-brand .icon { width: 32px; height: 32px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .topbar-brand span { font-weight: 700; color: var(--text); font-size: 15px; }
+    .topbar-nav { display: flex; align-items: center; gap: 4px; }
+    .nav-link { padding: 6px 14px; border-radius: 7px; text-decoration: none; font-size: 13px; font-weight: 500; color: var(--muted); transition: all .15s; }
+    .nav-link:hover { background: var(--bg); color: var(--text); }
+    .nav-link.active { background: var(--primary-light); color: var(--primary); }
+    .nav-sep { color: var(--border); margin: 0 4px; }
+
+    .page { max-width: 700px; margin: 0 auto; padding: 32px 24px; }
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-size: 22px; color: var(--text); font-weight: 700; }
+    .page-header p  { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+    .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; margin-bottom: 20px; }
+    .card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+
+    label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; margin-top: 12px; }
+    label:first-child { margin-top: 0; }
+    input, textarea {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 13px; font-family: monospace; outline: none;
+      transition: border-color .2s; color: var(--text);
+    }
+    input[type="number"] { font-family: inherit; font-size: 14px; }
+    input:focus, textarea:focus { border-color: var(--primary); }
+
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 8px; border: none;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-danger  { background: #ef4444; color: white; }
+    .btn-danger:hover { background: #dc2626; }
+
+    .result-box {
+      display: none; margin-top: 16px;
+      border-radius: 10px; padding: 18px 20px;
+    }
+    .valida   { background: var(--success-bg); border: 1px solid var(--success-border); }
+    .invalida { background: var(--error-bg);   border: 1px solid var(--error-border); }
+    .result-status { font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+    .valida   .result-status { color: var(--success-text); }
+    .invalida .result-status { color: var(--error-text); }
+
+    .result-grid {
+      display: grid; grid-template-columns: 130px 1fr;
+      gap: 6px 12px; font-size: 13px; margin-bottom: 14px;
+    }
+    .rg-label { font-weight: 600; color: #444; }
+    .rg-val   { font-family: monospace; word-break: break-all; color: var(--text); }
+
+    .text-block {
+      background: rgba(0,0,0,.04); border-radius: 6px;
+      padding: 10px 12px; font-size: 13px; white-space: pre-wrap;
+      word-break: break-word; max-height: 100px; overflow-y: auto;
+      margin-bottom: 14px; border: 1px solid rgba(0,0,0,.06);
+    }
+    .text-block-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+
+
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-brand" href="/sign.html">
+    <div class="icon">🔐</div>
+    <span>Assinador Digital</span>
+  </a>
+  <div class="topbar-nav">
+    <a class="nav-link" href="/sign.html">✍️ Assinar</a>
+    <a class="nav-link active" href="/verify.html">🔍 Verificar</a>
+    <a class="nav-link" href="/keys.html">🔑 Chaves</a>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <h1>Verificar Assinatura</h1>
+    <p>Confirme a autenticidade e integridade de uma assinatura digital.</p>
+  </div>
+
+  <!-- Por ID -->
+  <div class="card">
+    <div class="card-title">Verificar por ID</div>
+    <label>ID da assinatura</label>
+    <input type="number" id="sigId" placeholder="Ex: 1">
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="verificarPorId()">🔍 Verificar</button>
+    </div>
+
+    <div class="result-box" id="resultado">
+      <div class="result-status" id="status"></div>
+      <div class="result-grid" id="info"></div>
+      <div id="texto-original-block" style="display:none">
+        <div class="text-block-label">Texto original</div>
+        <div class="text-block" id="texto-original"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Manual -->
+  <div class="card">
+    <div class="card-title">Verificar manualmente</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Cole os dados retornados pelo /sign para verificar sem precisar de ID.</p>
+
+    <label>Texto original</label>
+    <textarea id="textoManual" rows="3" placeholder="Cole o texto que foi assinado..."></textarea>
+
+    <label>Assinatura (Base64)</label>
+    <textarea id="assinaturaManual" rows="3" placeholder="Cole a signatureB64..."></textarea>
+
+    <label>Chave pública (PEM)</label>
+    <textarea id="publicKeyManual" rows="5" placeholder="-----BEGIN PUBLIC KEY-----"></textarea>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="verificarManual()">🔍 Verificar</button>
+      <button class="btn btn-danger"  onclick="corromperEVerificar()">🧪 Testar corrompida</button>
+    </div>
+
+    <div class="result-box" id="resultadoManual">
+      <div class="result-status" id="statusManual"></div>
+      <div class="result-grid" id="infoManual"></div>
+      <div id="texto-manual-block" style="display:none">
+        <div class="text-block-label">Texto verificado</div>
+        <div class="text-block" id="texto-manual"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const id = new URLSearchParams(location.search).get('id');
+    if (id) { document.getElementById('sigId').value = id; verificarPorId(); }
+  });
+
+  async function verificarPorId() {
+    const id = document.getElementById('sigId').value;
+    if (!id) return alert('Informe o ID.');
+    const res  = await fetch('/verify/' + id);
+    const data = await res.json();
+    if (!res.ok) return alert(data.erro || 'Erro.');
+
+    mostrar('resultado', 'status', 'info', data.status, `
+      <span class="rg-label">Signatário</span><span class="rg-val">${esc(data.signatario)}</span>
+      <span class="rg-label">Algoritmo</span><span class="rg-val">RSA-SHA256-PSS</span>
+      <span class="rg-label">SHA-256</span><span class="rg-val">${data.hash}</span>
+      <span class="rg-label">Assinatura</span><span class="rg-val">${data.signatureB64}</span>
+      <span class="rg-label">Data</span><span class="rg-val">${new Date(data.criadoEm).toLocaleString('pt-BR')}</span>
+    `);
+
+    document.getElementById('texto-original-block').style.display = 'block';
+    document.getElementById('texto-original').textContent = data.text;
+
+  }
+
+  async function verificarManual() {
+    const text         = document.getElementById('textoManual').value.trim();
+    const signatureB64 = document.getElementById('assinaturaManual').value.trim();
+    const publicKey    = document.getElementById('publicKeyManual').value.trim();
+    if (!text || !signatureB64 || !publicKey) return alert('Preencha todos os campos.');
+
+    const res  = await fetch('/verify', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, signatureB64, publicKey })
+    });
+    const data = await res.json();
+    if (!res.ok) return alert(data.erro || 'Erro ao verificar.');
+    const hash = await sha256(text);
+
+    mostrar('resultadoManual', 'statusManual', 'infoManual', data.status, `
+      <span class="rg-label">Algoritmo</span><span class="rg-val">RSA-SHA256-PSS</span>
+      <span class="rg-label">SHA-256</span><span class="rg-val">${hash}</span>
+    `);
+    document.getElementById('texto-manual-block').style.display = 'block';
+    document.getElementById('texto-manual').textContent = text;
+  }
+
+  async function corromperEVerificar() {
+    const text      = document.getElementById('textoManual').value.trim();
+    const sig       = document.getElementById('assinaturaManual').value.trim();
+    const publicKey = document.getElementById('publicKeyManual').value.trim();
+    if (!text || !sig || !publicKey) return alert('Preencha todos os campos primeiro.');
+
+    const sigCorrompida = (sig[0] === 'A' ? 'B' : 'A') + sig.slice(1);
+    const res  = await fetch('/verify', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, signatureB64: sigCorrompida, publicKey })
+    });
+    const data = await res.json();
+
+    mostrar('resultadoManual', 'statusManual', 'infoManual', data.status, `
+      <span class="rg-label">Algoritmo</span><span class="rg-val">RSA-SHA256-PSS</span>
+      <span class="rg-label">Nota</span><span class="rg-val" style="color:#dc2626">Assinatura alterada propositalmente para teste.</span>
+    `);
+    document.getElementById('texto-manual-block').style.display = 'none';
+
+  }
+
+  function mostrar(divId, statusId, infoId, status, infoHtml) {
+    const div = document.getElementById(divId);
+    div.className = 'result-box ' + (status === 'VALIDA' ? 'valida' : 'invalida');
+    document.getElementById(statusId).innerHTML = status === 'VALIDA' ? '✅ Assinatura Válida' : '❌ Assinatura Inválida';
+    document.getElementById(infoId).innerHTML = infoHtml;
+    div.style.display = 'block';
+  }
+
+async function sha256(text) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

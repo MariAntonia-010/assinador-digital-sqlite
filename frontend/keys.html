@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Chaves & Assinaturas</title>
+  <style>
+    :root {
+      --bg: #f5f4f0;
+      --surface: #ffffff;
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --primary-light: #ede9fe;
+      --text: #1e1b4b;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(79,70,229,.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); min-height: 100vh; }
+
+    .topbar {
+      background: white; border-bottom: 1px solid var(--border);
+      padding: 0 32px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .topbar-brand .icon { width: 32px; height: 32px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .topbar-brand span { font-weight: 700; color: var(--text); font-size: 15px; }
+    .topbar-nav { display: flex; align-items: center; gap: 4px; }
+    .nav-link { padding: 6px 14px; border-radius: 7px; text-decoration: none; font-size: 13px; font-weight: 500; color: var(--muted); transition: all .15s; }
+    .nav-link:hover { background: var(--bg); color: var(--text); }
+    .nav-link.active { background: var(--primary-light); color: var(--primary); }
+    .nav-sep { color: var(--border); margin: 0 4px; }
+
+    .page { max-width: 820px; margin: 0 auto; padding: 32px 24px; }
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-size: 22px; color: var(--text); font-weight: 700; }
+    .page-header p  { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+    .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; margin-bottom: 20px; }
+    .card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+
+    .key-preview {
+      background: #f8f8fc; border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 12px; font-family: monospace; font-size: 11px;
+      white-space: pre-wrap; word-break: break-all;
+      max-height: 100px; overflow-y: auto;
+      display: none; margin: 10px 0;
+    }
+    .toggle-key { font-size: 12px; color: var(--primary); cursor: pointer; font-weight: 500; }
+
+    .download-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 8px; border: none;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s;
+      text-decoration: none;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-danger  { background: #ef4444; color: white; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-outline { background: white; color: var(--primary); border: 1.5px solid var(--primary); }
+    .btn-outline:hover { background: var(--primary-light); }
+    .btn-green { background: #10b981; color: white; }
+    .btn-green:hover { background: #059669; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+    .sig-item {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .sig-item:last-child { border-bottom: none; }
+    .sig-num { font-weight: 700; color: var(--primary); font-size: 13px; flex-shrink: 0; min-width: 32px; }
+    .sig-body { flex: 1; min-width: 0; }
+    .sig-text { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sig-meta { font-size: 11px; color: var(--muted); margin-top: 3px; font-family: monospace; }
+
+    .pub-item {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .pub-item:last-child { border-bottom: none; }
+    .pub-name { font-weight: 600; font-size: 14px; color: var(--text); }
+    .pub-preview { font-family: monospace; font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .badge { display: inline-block; background: var(--primary-light); color: var(--primary); border-radius: 99px; font-size: 11px; font-weight: 600; padding: 1px 8px; margin-left: 6px; }
+
+    .empty { text-align: center; padding: 24px 0; color: var(--muted); font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-brand" href="/sign.html">
+    <div class="icon">🔐</div>
+    <span>Assinador Digital</span>
+  </a>
+  <div class="topbar-nav">
+    <a class="nav-link" href="/sign.html">✍️ Assinar</a>
+    <a class="nav-link" href="/verify.html">🔍 Verificar</a>
+    <a class="nav-link active" href="/keys.html">🔑 Chaves</a>
+    <span class="nav-sep">|</span>
+    <a class="nav-link" href="/index.html">Sair</a>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <h1>Chaves & Assinaturas</h1>
+    <p>Gerencie suas chaves criptográficas e visualize suas assinaturas.</p>
+  </div>
+
+  <div class="card" id="my-keys-card" style="display:none">
+    <div class="card-title">🔐 Minhas Chaves</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Sua chave pública pode ser compartilhada livremente. A privada é secreta — nunca a compartilhe.</p>
+
+    <span class="toggle-key" onclick="toggleKey(this)">▶ Mostrar chave pública</span>
+    <div id="my-pub-key" class="key-preview"></div>
+
+    <div class="download-row">
+      <button class="btn btn-primary" onclick="downloadChave('public')">⬇ Pública (.pem)</button>
+      <button class="btn btn-danger"  onclick="downloadChave('private')">⬇ Privada (.pem)</button>
+      <button class="btn btn-outline" onclick="downloadChave('both')">⬇ Ambas (.json)</button>
+    </div>
+  </div>
+
+  <div class="card" id="my-sigs-card" style="display:none">
+    <div class="card-title">📝 Minhas Assinaturas</div>
+    <div id="my-sigs-list" class="empty">Carregando...</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🌐 Chaves Públicas dos Usuários</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Use estas chaves para verificar assinaturas de outros usuários.</p>
+    <div id="pub-keys-list" class="empty">Carregando...</div>
+  </div>
+</div>
+
+<script>
+  const jwt  = localStorage.getItem('jwt');
+  const user = localStorage.getItem('user');
+
+  if (jwt) {
+    document.getElementById('my-keys-card').style.display = 'block';
+    document.getElementById('my-sigs-card').style.display = 'block';
+    loadMyKeys();
+    loadMySignatures();
+  }
+  loadPublicKeys();
+
+  function toggleKey(link) {
+    const el = document.getElementById('my-pub-key');
+    const showing = el.style.display === 'block';
+    el.style.display = showing ? 'none' : 'block';
+    link.textContent = (showing ? '▶ Mostrar' : '▼ Ocultar') + ' chave pública';
+  }
+
+  async function loadMyKeys() {
+    const res  = await fetch('/api/my-keys', { headers: { Authorization: 'Bearer ' + jwt } });
+    if (!res.ok) return;
+    const data = await res.json();
+    document.getElementById('my-pub-key').textContent = data.publicKey;
+  }
+
+  async function loadMySignatures() {
+    const res  = await fetch('/api/my-signatures', { headers: { Authorization: 'Bearer ' + jwt } });
+    const list = document.getElementById('my-sigs-list');
+    if (!res.ok) { list.innerHTML = 'Erro ao carregar.'; return; }
+    const sigs = await res.json();
+    if (!sigs.length) { list.innerHTML = 'Nenhuma assinatura ainda.'; return; }
+    list.innerHTML = '<div>' + sigs.map(s => `
+      <div class="sig-item">
+        <span class="sig-num">#${s.id}</span>
+        <div class="sig-body">
+          <div class="sig-text" title="${esc(s.textContent)}">${esc(s.textContent)}</div>
+          <div class="sig-meta">SHA-256: ${s.textHash} · ${new Date(s.createdAt).toLocaleString('pt-BR')}</div>
+        </div>
+        <a href="/verify.html?id=${s.id}" class="btn btn-primary btn-sm" style="flex-shrink:0">🔍 Verificar</a>
+      </div>
+    `).join('') + '</div>';
+  }
+
+  async function loadPublicKeys() {
+    const res  = await fetch('/api/keys');
+    const list = document.getElementById('pub-keys-list');
+    if (!res.ok) { list.innerHTML = 'Erro ao carregar.'; return; }
+    const keys = await res.json();
+    if (!keys.length) { list.innerHTML = 'Nenhuma chave cadastrada.'; return; }
+    list.innerHTML = '<div>' + keys.map(k => {
+      const preview = k.publicKey.split('\n').slice(1,2).join('').substring(0,48) + '...';
+      const isMe = user && k.user.username === user;
+      return `
+        <div class="pub-item">
+          <div>
+            <div class="pub-name">${esc(k.user.username)}${isMe ? '<span class="badge">você</span>' : ''}</div>
+            <div class="pub-preview">${preview}</div>
+          </div>
+          <a href="/api/keys/${k.id}/download-public" class="btn btn-green btn-sm">⬇ .pem</a>
+        </div>
+      `;
+    }).join('') + '</div>';
+  }
+
+  async function downloadChave(tipo) {
+    const urls = { public: '/api/my-keys/download-public', private: '/api/my-keys/download-private', both: '/api/my-keys/download' };
+    const names = { public: `public_${user}.pem`, private: `private_${user}.pem`, both: `keys_${user}.json` };
+    const res = await fetch(urls[tipo], { headers: { Authorization: 'Bearer ' + jwt } });
+    if (!res.ok) return alert('Erro ao baixar.');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(await res.blob());
+    a.download = names[tipo];
+    a.click();
+  }
+
+  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
